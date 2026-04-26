@@ -6,8 +6,9 @@ import { productSchema } from "./schema/product";
 export default defineConfig({
   name: "keep-looking-flowers",
   title: "Keep Looking Flowers",
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "",
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  projectId: "usaj2u9e",
+  dataset: "production",
+  basePath: "/studio",
   plugins: [structureTool(), visionTool()],
   schema: {
     types: [productSchema],
