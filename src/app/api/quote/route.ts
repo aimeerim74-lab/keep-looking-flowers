@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const { name, email, eventDate, product, description, budget } = await req.json();
@@ -10,8 +10,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
-    from: "quotes@keepflooking.flowers",
+    from: "onboarding@resend.dev",
     to: process.env.OWNER_EMAIL!,
     replyTo: email,
     subject: `Custom Quote Request from ${name}`,

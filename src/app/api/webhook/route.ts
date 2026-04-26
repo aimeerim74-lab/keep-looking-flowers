@@ -2,15 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
-});
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const dynamic = "force-dynamic";
+
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2026-04-22.dahlia",
+  });
+}
+
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature")!;
 
+  const stripe = getStripe();
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -42,8 +50,9 @@ export async function POST(req: NextRequest) {
       ? `${shipping.address.line1}, ${shipping.address.city}, ${shipping.address.state} ${shipping.address.postal_code}`
       : "Pickup";
 
+    const resend = getResend();
     await resend.emails.send({
-      from: "orders@keepflooking.flowers",
+      from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL!,
       subject: `New Order — $${((session.amount_total ?? 0) / 100).toFixed(2)}`,
       text: `New order received!\n\nCustomer: ${session.customer_details?.name}\nEmail: ${session.customer_details?.email}\nAddress: ${address}\n\nItems:\n${itemLines}\n\nTotal: $${((session.amount_total ?? 0) / 100).toFixed(2)}\n\nStripe session: ${session.id}`,
